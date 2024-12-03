@@ -6,6 +6,9 @@ import numpy as np
 import mediapipe as mp
 from typing import Dict, Any
 
+DATA_FOLDER_PATH = "data"
+SIGN_IMG_PATH = "sign_imgs"
+
 
 def is_handsign_character(char: str) -> bool:
     """Check if a character is a valid hand sign character."""
@@ -78,17 +81,16 @@ class HandLandmarksDetector():
         return hands, annotated_image
 
 
-def run(data_path, sign_img_path, split="val", resolution=(1280, 720)):
+def run(split="val", resolution=(1280, 720)):
     hand_detector = HandLandmarksDetector()  # Initialize hand landmark detector
     cam = cv2.VideoCapture(0)  # Open default camera
     cam.set(3, resolution[0])  # Set camera width
     cam.set(4, resolution[1])  # Set camera height
     
-    os.makedirs(data_path, exist_ok=True)  # Create data directory if not exists
-    os.makedirs(sign_img_path, exist_ok=True)  # Create image directory if not exists
-    print(sign_img_path)
+    os.makedirs(DATA_FOLDER_PATH, exist_ok=True)  # Create data directory if not exists
+    os.makedirs(SIGN_IMG_PATH, exist_ok=True)  # Create image directory if not exists
     
-    dataset_path = f"./{data_path}/landmark_{split}.csv"  # Generate dataset CSV path
+    dataset_path = os.path.join(DATA_FOLDER_PATH, f"landmark_{split}.csv")  # Generate dataset CSV path
     hand_dataset = HandDatasetWriter(dataset_path)  # Initialize dataset writer
 
     current_letter = None  # Track currently selected letter
@@ -135,7 +137,7 @@ def run(data_path, sign_img_path, split="val", resolution=(1280, 720)):
                     if saved_frame is not None:
                         if label >= 0:
                             # Save hand sign image
-                            cv2.imwrite(f"./{sign_img_path}/{LABEL_TAG[label]}.jpg", saved_frame)
+                            cv2.imwrite(os.path.join(SIGN_IMG_PATH, f"{LABEL_TAG[label]}.jpg"), saved_frame)
 
                         # Reset recording state
                         cannot_switch_char = False
@@ -156,8 +158,6 @@ def run(data_path, sign_img_path, split="val", resolution=(1280, 720)):
 
 if __name__ == "__main__":
     LABEL_TAG = label_dict_from_config_file("hand_gesture.yaml")
-    data_path = "./data2"
-    sign_img_path = "./sign_imgs2"
-    run(data_path, sign_img_path, "train", (1280, 720))
-    run(data_path, sign_img_path, "val", (1280, 720))
-    run(data_path, sign_img_path, "test", (1280, 720))
+    run("train", (1280, 720))
+    run("val", (1280, 720))
+    run("test", (1280, 720))
