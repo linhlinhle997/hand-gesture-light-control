@@ -1,9 +1,12 @@
+import os
 import cv2
 import torch
 import numpy as np
 from generate_landmark_data import HandLandmarksDetector
 from custom_nn_utils import NeuralNetwork
 from generate_landmark_data import label_dict_from_config_file
+
+MODEL_PATH = "models"
 
 
 class LightGesture:
@@ -111,7 +114,7 @@ class LightGesture:
             
             # Create a window to display the video feed
             cv2.namedWindow("window", cv2.WINDOW_NORMAL)
-            cv2.resizeWindow("window", 800, 600) # Resize window for display
+            cv2.resizeWindow("window", 1024, 768) # Resize window for display
             cv2.imshow("window", img) # Show the updated image in the window
 
             if cv2.waitKey(1) == ord("q"):
@@ -122,6 +125,6 @@ class LightGesture:
 
 
 if __name__ == "__main__":
-    model_path = "models/best_model.pth"
+    model_path = os.path.join(MODEL_PATH, "best_model.pth")
     light = LightGesture(model_path, device=True)
     light.run()
